@@ -555,37 +555,60 @@
                 var latestCheckedRadio = null;
                 var itemsCount = 0;
                 var subtotalCurrency = 'IDR'; // Currency is always IDR
+                var hasFullActivity = false;
+                var fullActivity = null;
                 
                 $('.activity .radio input[type="radio"]').each(function() {
                     if ($(this).is(':checked')) {
-                        var activityName = $(this).data('activity');
-                        var activityPrice = $(this).data('price');
-                        var convertedPrice = $(this).data('converted-price');
-                        var currency = activityPrice.includes('IDR') ? 'IDR' : 'USD';
-                        activityPrice = activityPrice.replace(currency, '').trim();
-
-                        $('#shopping-cart tbody').append(
-                            '<tr>' +
-                            '<td>' + activityName + '</td>' +
-                            '<td>' + (currency === 'IDR' ? 'IDR ' + activityPrice.replace(/\d(?=(\d{3})+\.)/g, '$&,') : '') + '</td>' +
-                            '<td>' + (currency === 'USD' ? 'USD ' + activityPrice.replace(/\d(?=(\d{3})+\.)/g, '$&,') : '') + '</td>' +
-                            '</tr>'
-                        );
-
-                        
-
-                        if (currency === 'IDR') {
-                            subtotalIDR += parseFloat(activityPrice);
+                        var selectedActivity = $(this).attr('name');
+                        if (selectedActivity === 'activity_1' || selectedActivity === 'activity_4') {
+                            // Mark that a full activity was found
+                            hasFullActivity = true;
+                            fullActivity = selectedActivity;
                         } else {
-                            subtotalIDR += parseFloat(convertedPrice);
-                            subtotalUSD += parseFloat(activityPrice);
-                            subtotalCurrency = 'USD'; 
-                        }
+                            var activityName = $(this).data('activity');
+                            var activityPrice = $(this).data('price');
+                            var convertedPrice = $(this).data('converted-price');
+                            var currency = activityPrice.includes('IDR') ? 'IDR' : 'USD';
+                            activityPrice = activityPrice.replace(currency, '').trim();
 
-                        itemsCount++;
-                        latestCheckedRadio = $(this); // Move this line here
+                            $('#shopping-cart tbody').append(
+                                '<tr>' +
+                                '<td>' + activityName + '</td>' +
+                                '<td>' + (currency === 'IDR' ? 'IDR ' + activityPrice.replace(/\d(?=(\d{3})+\.)/g, '$&,') : '') + '</td>' +
+                                '<td>' + (currency === 'USD' ? 'USD ' + activityPrice.replace(/\d(?=(\d{3})+\.)/g, '$&,') : '') + '</td>' +
+                                '</tr>'
+                            );
+
+                            
+
+                            if (currency === 'IDR') {
+                                subtotalIDR += parseFloat(activityPrice);
+                            } else {
+                                subtotalIDR += parseFloat(convertedPrice);
+                                subtotalUSD += parseFloat(activityPrice);
+                                subtotalCurrency = 'USD'; 
+                            }
+
+                            itemsCount++;
+                            latestCheckedRadio = $(this); // Move this line here
+                        }
                     }
                 });
+
+                if (hasFullActivity) {
+                    var swalMessage;
+                            // Display a warning using Swal.fire
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Oops...',
+                                text: "We're sorry, but this activity is fully booked. Please choose another activity."
+                            }).then((result) => {
+                                // Trigger click event for activity_2 button
+                                $('.revert-btn[data-target="'+fullActivity+'"]').trigger('click');
+                            });
+                            return false; // Exit the loop early
+                        }
 
                 var paymentType = $("input[name='payment_method']:checked").val();
 
