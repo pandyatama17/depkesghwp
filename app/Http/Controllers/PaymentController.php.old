@@ -1,0 +1,337 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\App;
+
+class PaymentController extends Controller
+{
+    function generateSignature() {
+        $clientId = "BRN-0212-1713848916613";
+        $requestId = Str::uuid();
+        $requestDate = Carbon::now()->setTimezone('Asia/Bangkok')->toIso8601ZuluString();
+        $targetPath = "/request-target/goes-here"; // For merchant request to Jokul, use Jokul path here. For HTTP Notification, use merchant path here
+        $secretKey = "SK-8QcLx520gN1OBVlUB3U2";
+        $requestBody = [
+            'order' => [
+                'amount' => 80000,
+                'invoice_number' => 'INV-'.Carbon::now()->setTimezone('Asia/Bangkok')->format('ymdHisu'),
+                'currency' => 'IDR',
+                'callback_url' => 'http://doku.com/',
+                'callback_url_cancel' => 'https://doku.com',
+                'language' => 'EN',
+                'auto_redirect' => true,
+                'disable_retry_payment' => true,
+                'line_items' => [
+                    [
+                        'id' => '001',
+                        'name' => 'Fresh flowers',
+                        'quantity' => 1,
+                        'price' => 40000,
+                        'sku' => 'FF01',
+                        'category' => 'gift-and-flowers',
+                        'url' => 'http://doku.com/',
+                        'image_url' => 'http://doku.com/',
+                        'type' => 'ABC'
+                    ],
+                    [
+                        'id' => '002',
+                        'name' => 'T-shirt',
+                        'quantity' => 1,
+                        'price' => 40000,
+                        'sku' => 'T01',
+                        'category' => 'clothing',
+                        'url' => 'http://doku.com/',
+                        'image_url' => 'http://doku.com/',
+                        'type' => 'ABC'
+                    ]
+                ]
+            ],
+            'payment' => [
+                'payment_due_date' => 60,
+                'payment_method_types' => [
+                    'VIRTUAL_ACCOUNT_BCA',
+                    'VIRTUAL_ACCOUNT_BANK_MANDIRI',
+                    'VIRTUAL_ACCOUNT_BANK_SYARIAH_MANDIRI',
+                    'VIRTUAL_ACCOUNT_DOKU',
+                    'VIRTUAL_ACCOUNT_BRI',
+                    'VIRTUAL_ACCOUNT_BNI',
+                    'VIRTUAL_ACCOUNT_BANK_PERMATA',
+                    'VIRTUAL_ACCOUNT_BANK_CIMB',
+                    'VIRTUAL_ACCOUNT_BANK_DANAMON',
+                    'ONLINE_TO_OFFLINE_ALFA',
+                    'CREDIT_CARD',
+                    'DIRECT_DEBIT_BRI',
+                    'EMONEY_SHOPEEPAY',
+                    'EMONEY_OVO',
+                    'EMONEY_DANA',
+                    'QRIS',
+                    'PEER_TO_PEER_AKULAKU',
+                    'PEER_TO_PEER_KREDIVO',
+                    'PEER_TO_PEER_INDODANA'
+                ]
+            ],
+            'customer' => [
+                'id' => 'JC-01',
+                'name' => 'Zolanda',
+                'last_name' => 'Anggraeni',
+                'phone' => '628121212121',
+                'email' => 'zolanda@example.com',
+                'address' => 'taman setiabudi',
+                'postcode' => '120129',
+                'state' => 'Jakarta',
+                'city' => 'Jakarta Selatan',
+                'country' => 'ID'
+            ],
+            'shipping_address' => [
+                'first_name' => 'Joe',
+                'last_name' => 'Doe',
+                'address' => 'Jalan DOKU no 15',
+                'city' => 'Jakarta',
+                'postal_code' => '11923',
+                'phone' => '081312345678',
+                'country_code' => 'IDN'
+            ],
+            'billing_address' => [
+                'first_name' => 'Joe',
+                'last_name' => 'Doe',
+                'address' => 'Jalan DOKU no 15',
+                'city' => 'Jakarta',
+                'postal_code' => '11923',
+                'phone' => '081312345678',
+                'country_code' => 'IDN'
+            ],
+            'additional_info' => [
+                'allow_tenor' => [0, 3, 6, 12],
+                'close_redirect' => 'www.doku.com',
+                'doku_wallet_notify_url' => 'https://dw-notify.free.beeceptor.com'
+            ]
+        ];
+        
+
+        // Generate Digest
+        $digestValue = base64_encode(hash('sha256', json_encode($requestBody), true));
+        // echo "Digest: " . $digestValue;
+        // echo "\r<br><br>";
+
+        // Prepare Signature Component
+        $componentSignature = "Client-Id:" . $clientId . "\n" . 
+                            "Request-Id:" . $requestId . "\n" .
+                            "Request-Timestamp:" . $requestDate . "\n" . 
+                            "Request-Target:" . $targetPath . "\n" .
+                            "Digest:" . $digestValue;
+        // echo "Component Signature: <br>" . $componentSignature;
+        // echo "\r<br><br>";
+        
+        // Calculate HMAC-SHA256 base64 from all the components above
+        $signature = base64_encode(hash_hmac('sha256', $componentSignature, $secretKey, true));
+        // echo "Signature: " . $signature;
+        // echo "\r<br><br>";
+
+
+        // echo "Requestbody: " . json_encode($requestBody);
+        // echo "\r<br><br>";
+
+        // Sample of Usage
+        $headerSignature =  "Client-Id:" . $clientId ."<br>". 
+                            "Request-Id:" . $requestId . "<br>".
+                            "Request-Timestamp:" . $requestDate ."<br>".
+                            "Digest: " . $digestValue. "<br>".
+                            // Prepend encoded result with algorithm info HMACSHA256=
+                            "Signature:" . "HMACSHA256=" . $signature;
+        // echo "your header request look like: <br>";
+        echo $headerSignature;
+        echo "\r<br><br>";
+        
+    }
+
+    public function preparePaymentData(Request $r)
+    {
+
+        if ($r->payment_method == 'doku') {
+            //prepare body for dokuJokul API hit
+            $requestData = $r->all();
+            $invoice = 'INV' . mt_rand(100000, 200000);
+            $clientId = env('DOKU_CLIENT_ID');
+
+            $dokuApi = env('DOKU_API');
+
+            $requestDate = Carbon::now()->setTimezone('Asia/Bangkok')->toIso8601ZuluString();
+            $requestTarget = "/checkout/v1/payment";
+
+            $body = $this->prepareBody($invoice, $requestData);
+            $signature = $this->createSignature($body, $invoice, $clientId, $requestDate, $requestTarget);
+
+            $headers = $this->createHeader($invoice, $clientId, $requestDate, $signature);
+            
+            return response()->json([
+                'headers' => $headers,
+                'body' => $body,
+                'signature' => $signature, // Include the signature in the response
+                'dokuApi' => $dokuApi, // Include the signature in the response
+            ]);
+        } else {
+             // Make an internal request to RegistrationController@store()
+            $request = Request::create(route('store_registration'), 'POST', $r->all());
+            $response = App::handle($request);
+            
+            // Return the response
+            return $response;
+        }
+    }
+
+    private function createHeader($invoice, $clientId, $requestDate, $signature)
+    {
+        return [
+            "Content-Type" => "application/json",
+            "Signature" => 'HMACSHA256=' . $signature,
+            "Request-Id" => $invoice,
+            "Client-Id" => $clientId,
+            "Request-Timestamp" => $requestDate,
+        ];
+    }
+    private function prepareBody($invoice, $r)
+    {
+        // Define an array to map activity names and prices
+        $activityMapping = [
+            'local' => [
+                'activity_1' => ['Day 1 SessionInc. Opening Ceremony + TC Open Meeting  - Local Participant', 2000000],
+                'activity_2' => ['Day 1 Half Day Session - Local Participant', 1000000],
+                'activity_3' => ['Day 2 Session - Local Participant', 2000000],
+                'activity_4' => ['2 Days Package include Opening Ceremony and TC Open Meeting - Local Participant', 3750000],
+                'activity_5' => ['Halal Awareness by IHATEC + Attendance certificate - Local Participant', 2600000],
+                'activity_6' => ['2 days GDPMD (CDAKB) for Technical Responsible Person + Certificate by Ministry of Health Republic of Indonesia', 4000000],
+                'activity_7' => ['Gala Dinner - Local Participant', 750000],
+            ],
+            'foreign' => [
+                'activity_1' => ['Day 1 Session Inc. Opening Ceremony + TC Open Meeting   - Foreign Participant', 250],
+                'activity_2' => ['Day 1 Half Day Session - Foreign Participant', 125],
+                'activity_3' => ['Day 2 Session - Foreign Participant', 250],
+                'activity_4' => ['2 Days Package include Opening Ceremony and TC Open Meeting - Foreign Participant', 500],
+                'activity_5' => ['Halal Awareness by IHATEC + Attendance certificate - Foreign Participant', 250],
+                'activity_7' => ['Gala Dinner - Foreign Participant', 100],
+            ],
+        ];
+
+        // Initialize variables for line items
+        $lineItems = [];
+
+        // Loop through the activity keys and add line items for selected activities
+        foreach ($r as $key => $value) {
+            if (strpos($key, 'activity_') === 0 && isset($activityMapping[$value][$key])) {
+                $selectedOption = $activityMapping[$value][$key];
+                $item_name = $selectedOption[0];
+                $item_price = $selectedOption[1];
+                $lineItems[] = [
+                    "name" => $item_name,
+                    "price" => $item_price,
+                    "quantity" => 1,
+                ];
+            }
+        }
+
+        // Add the payment fee item
+        $lineItems[] = [
+            "name" => "Admin Fee",
+            "price" =>  round($r['fee'], 0, PHP_ROUND_HALF_UP),
+            "quantity" => 1,
+        ];
+
+        // Set other variables
+        $order_amount = round($r['total'], 0, PHP_ROUND_HALF_UP); 
+        $order_callback_url = 'https://doku.com';
+
+        // Create body array
+        $body = [
+            "customer" => [
+                "address" => $r['address'],
+                "country" => "ID",
+                "email" => $r['email'],
+                "name" => $r['name'],
+                "phone" => preg_replace('/[^0-9]/', '', $r['phone']),
+            ],
+            "order" => [
+                "amount" => $order_amount,
+                "callback_url" => $order_callback_url,
+                "currency" => $r['currency'],
+                "invoice_number" => $invoice,
+                "line_items" => $lineItems,
+                "session_id" => $this->makeSession(32),
+            ],
+            "payment" => [
+                "payment_due_date" => 60,
+            ],
+            "payment" => [
+                "payment_due_date" => 60,
+                "payment_method_types" => [
+                    "CREDIT_CARD",
+                ],
+            ],
+        ];
+
+        return $body;
+    }
+
+    private function makeSession($length)
+    {
+        $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        $charactersLength = strlen($characters);
+        $result = '';
+
+        for ($i = 0; $i < $length; $i++) {
+            $result .= $characters[rand(0, $charactersLength - 1)];
+        }
+
+        return $result;
+    }
+
+    private function createSignature($body, $invoice, $clientId, $requestDate, $requestTarget)
+    {
+        $digest = base64_encode(hash('sha256', json_encode($body), true));
+        $rawSignature = $this->consumeDigest($digest, $clientId, $invoice, $requestDate, $requestTarget);
+        $key = env('DOKU_CLIENT_SECRET');
+
+        return base64_encode(hash_hmac('sha256', $rawSignature, $key, true));
+    }
+
+    private function consumeDigest($digest, $clientId, $invoice, $requestDate, $requestTarget)
+    {
+        $processedDigest =
+            "Client-Id:" . $clientId . "\n"
+            . "Request-Id:" . $invoice . "\n"
+            . "Request-Timestamp:" . $requestDate . "\n"
+            . "Request-Target:" . $requestTarget . "\n"
+            . "Digest:" . $digest;
+
+        return $processedDigest;
+    }
+
+    private function createSignature2($body, $invoice, $clientId, $requestDate, $requestTarget)
+    {
+        // Calculate the digest of the request body
+        $digest = base64_encode(hash('sha256', json_encode($body), true));
+        
+        // Construct the signature components
+        $signatureComponents =
+            "Client-Id:" . $clientId . "\n" .
+            "Request-Id:" . $invoice . "\n" .
+            "Request-Timestamp:" . $requestDate . "\n" .
+            "Request-Target:" . $requestTarget . "\n" .
+            "Digest:" . $digest;
+
+        // Get the client secret key
+        $key = env('DOKU_CLIENT_SECRET');
+
+        // Calculate the HMAC-SHA256 signature
+        $rawSignature = hash_hmac('sha256', $signatureComponents, $key, true);
+
+        // Encode the signature in Base64
+        $encodedSignature = base64_encode($rawSignature);
+
+        return $encodedSignature;
+    }
+
+}
