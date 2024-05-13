@@ -153,24 +153,34 @@ $(function(){
                             async: true,
                             success: function(response) {
                                 // Handle response based on payment method
-                                if (paymentType === "doku" || paymentType === "transfer") {
-                                    payment(response);
-                                } else {
-                                    if (response.success) {
-                                        // Registration successful
-                                        Swal.fire({
-                                            icon: "success",
-                                            title: "Success",
-                                            text: response.message
-                                        });
+                                if (response.success) {
+                                    if (paymentType === "doku" || paymentType === "transfer") {
+                                        payment(response);
                                     } else {
-                                        // Registration failed
-                                        Swal.fire({
-                                            icon: "error",
-                                            title: "Error",
-                                            html: response.message + (response.error ? "<br><small>" + response.error + "</small>" : "")
-                                        });
+                                        if (response.success) {
+                                            // Registration successful
+                                            Swal.fire({
+                                                icon: "success",
+                                                title: "Success",
+                                                text: response.message
+                                            });
+                                        } else {
+                                            // Registration failed
+                                            Swal.fire({
+                                                icon: "error",
+                                                title: "Error",
+                                                html: response.message + (response.error ? "<br><small>" + response.error + "</small>" : "")
+                                            });
+                                        }
                                     }
+                                }
+                                else
+                                {
+                                    Swal.fire({
+                                        icon: "error",
+                                        title: "Error",
+                                        html: response.message
+                                    });
                                 }
                             },
                             error: function(xhr, status, error) {

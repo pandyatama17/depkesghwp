@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage; // Import the Storage facade
 
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Support\Facades\Crypt;
 
 class RegistrationController extends Controller
 {
@@ -51,8 +52,11 @@ class RegistrationController extends Controller
             $registration->email = $r->email;
             // Add other registration fields
 
+            // Encrypt the registration ID
+            $encryptedId = Crypt::encrypt($registration->id);
             // Generate QR code for registration URL
-            $registrationUrl = env('APP_URL')."/registration/details/{$registration->id}";
+            // Append the encrypted ID to the URL
+            $registrationUrl = env('APP_URL') . "/registration/details/{$encryptedId}";
             // $qrCodeImage = $this->generateQRCode($registrationUrl);
 
             // // Save QR code image data to the registration

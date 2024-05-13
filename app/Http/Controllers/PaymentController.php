@@ -11,6 +11,7 @@ use App\Models\Payment;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Validator;
 
 class PaymentController extends Controller
 {
@@ -20,73 +21,97 @@ class PaymentController extends Controller
 
     public function preparePaymentData(Request $r)
     {
-    if ($r->payment_method != 'letter') {
 
-        $requestData = $r->all();
-        $invoice = 'INV-' . mt_rand(100000, 200000);
-        $clientId = env('DOKU_CLIENT_ID');
+        // Validate email first
+        $validator = Validator::make($r->all(), [
+            'email' => [
+                'required',
+                'email',
+                // Check if email exists in registrations table
+                function ($attribute, $value, $fail) {
+                    if (Registration::where('email', $value)->exists()) {
+                        $fail('The email has already been registered.');
+                    }
+                },
+            ],
+            // Add more validation rules if needed
+        ]);
+    
+        // Check if validation fails
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()->first(),
+                'error' => $validator->errors()->first(),
+            ]);
+        }
+        if ($r->payment_method != 'letter') {
 
-        $dokuApi = env('DOKU_API_IPG');
+            $requestData = $r->all();
+            $invoice = 'INV-' . mt_rand(100000, 200000);
+            $clientId = env('DOKU_CLIENT_ID');
 
-        $requestDate = Carbon::now()->setTimezone('Asia/Bangkok')->toIso8601ZuluString();
-        $requestTarget = "/checkout/v1/payment";
-        
-        $requestId = $this->uuidv4();
-        $body = $this->prepareBody($invoice, $requestData, $requestId);
-        $signature = $this->createSignature($body, $invoice, $clientId, $requestDate, $requestTarget);
-        
-        
-        $headers = $this->createHeader($invoice, $clientId, $requestDate, $signature);
+            $dokuApi = env('DOKU_API_IPG');
 
-        try {
-            // Send request to create payment session and retrieve token ID
-            $response = Http::withHeaders($headers)->post(env('DOKU_API') . $requestTarget, $body);
+            $requestDate = Carbon::now()->setTimezone('Asia/Bangkok')->toIso8601ZuluString();
+            $requestTarget = "/checkout/v1/payment";
+            
+            $requestId = $this->uuidv4();
+            $body = $this->prepareBody($invoice, $requestData, $requestId);
+            $signature = $this->createSignature($body, $invoice, $clientId, $requestDate, $requestTarget);
+            
+            
+            $headers = $this->createHeader($invoice, $clientId, $requestDate, $signature);
 
-            // Check if the request was successful
-            if ($response->successful()) {
-                $paymentData = $response->json();
+            try {
+                // Send request to create payment session and retrieve token ID
+                $response = Http::withHeaders($headers)->post(env('DOKU_API') . $requestTarget, $body);
 
-                // Extract token ID from response
-                $tokenId = $paymentData['response']['payment']['token_id'];
+                // Check if the request was successful
+                if ($response->successful()) {
+                    $paymentData = $response->json();
 
-                $payment = new Payment;
-                $payment->request_id = $requestId; // Use token ID as session ID
-                $payment->payload = json_encode($r->all());
-                $payment->payment_method = $r->payment_method;
-                $payment->save();
+                    // Extract token ID from response
+                    $tokenId = $paymentData['response']['payment']['token_id'];
 
-                return response()->json([
-                    'success' => true,
-                    'token_id' => $tokenId,
-                    'headers' => $headers,
-                    'request_id' => $requestId,
-                    'body' => $body,
-                    'signature' => $signature,
-                    'dokuApi' => $dokuApi,
-                ]);
-            } else {
-                // Request failed, return error response
+                    $payment = new Payment;
+                    $payment->request_id = $requestId; // Use token ID as session ID
+                    $payment->payload = json_encode($r->all());
+                    $payment->payment_method = $r->payment_method;
+                    $payment->save();
+
+                    return response()->json([
+                        'success' => true,
+                        'token_id' => $tokenId,
+                        'headers' => $headers,
+                        'request_id' => $requestId,
+                        'body' => $body,
+                        'signature' => $signature,
+                        'dokuApi' => $dokuApi,
+                    ]);
+                } else {
+                    // Request failed, return error response
+                    return response()->json([
+                        'success' => false,
+                        'error' => 'Failed to create payment session',
+                        'headers' => $headers,
+                        'body' => $body,
+                        'signature' => $signature,
+                        'dokuApi' => $dokuApi,
+                    ]);
+                }
+            } catch (\Throwable $th) {
+                // Exception occurred, return error response
                 return response()->json([
                     'success' => false,
-                    'error' => 'Failed to create payment session',
+                    'error' => $th->getMessage(),
                     'headers' => $headers,
                     'body' => $body,
                     'signature' => $signature,
                     'dokuApi' => $dokuApi,
                 ]);
             }
-        } catch (\Throwable $th) {
-            // Exception occurred, return error response
-            return response()->json([
-                'success' => false,
-                'error' => $th->getMessage(),
-                'headers' => $headers,
-                'body' => $body,
-                'signature' => $signature,
-                'dokuApi' => $dokuApi,
-            ]);
-        }
-    } else {
+        } else {
 
             $request = Request::create(route('store_registration'), 'POST', $r->all());
             $response = App::handle($request);
