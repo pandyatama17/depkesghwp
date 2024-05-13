@@ -64,6 +64,7 @@ class RegistrationController extends Controller
             
             $registration->qr_code = QrCode::format('png')
                 ->errorCorrection('M')
+                ->size(500)
                 ->generate($registrationUrl);
 
                 $activityMapping = [
