@@ -399,45 +399,53 @@
                     console.log(paymentType);
 
                     $.ajax({
-                        url: actionUrl, 
-                        type: "POST",
-                        dataType: "json",
-                        data: formData,
-                        async: true,
-                        success: function(response) {
-
-                            if (paymentType === "doku" || paymentType === "transfer") {
-
-                                payment(response);
-                            } else {
-
+                            url: actionUrl, // Use the same URL for both payment methods
+                            type: "POST",
+                            dataType: "json",
+                            data: formData,
+                            async: true,
+                            success: function(response) {
+                                // Handle response based on payment method
                                 if (response.success) {
-
-                                    Swal.fire({
-                                        icon: "success",
-                                        title: "Success",
-                                        text: response.message
-                                    });
-                                } else {
-
+                                    if (paymentType === "doku" || paymentType === "transfer") {
+                                        payment(response);
+                                    } else {
+                                        if (response.success) {
+                                            // Registration successful
+                                            Swal.fire({
+                                                icon: "success",
+                                                title: "Success",
+                                                text: response.message
+                                            });
+                                        } else {
+                                            // Registration failed
+                                            Swal.fire({
+                                                icon: "error",
+                                                title: "Error",
+                                                html: response.message + (response.error ? "<br><small>" + response.error + "</small>" : "")
+                                            });
+                                        }
+                                    }
+                                }
+                                else
+                                {
                                     Swal.fire({
                                         icon: "error",
                                         title: "Error",
-                                        html: response.message + (response.error ? "<br><small>" + response.error + "</small>" : "")
+                                        html: response.message
                                     });
                                 }
+                            },
+                            error: function(xhr, status, error) {
+                                // AJAX request failed
+                                console.error(error);
+                                Swal.fire({
+                                    icon: "error",
+                                    title: "Error",
+                                    text: "Failed to submit the form. Please try again later."
+                                });
                             }
-                        },
-                        error: function(xhr, status, error) {
-
-                            console.error(error);
-                            Swal.fire({
-                                icon: "error",
-                                title: "Error",
-                                text: "Failed to submit the form. Please try again later."
-                            });
-                        }
-                    });
+                        });
                 }
             });
             $('#csrf-token').val($('meta[name="csrf-token"]').attr('content'));
