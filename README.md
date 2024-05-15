@@ -1,3 +1,11 @@
+![banner](https://github.com/pandyatama17/depkesghwp/assets/12741952/84ea3488-6617-4e40-941f-3f298fca3ed2)
+
+## About RegGakeslab
+
+Registation + back office application for "Capacity Building For Medical Device Industries Back to Back Session with Global Harmonization Working Party (GHWP) TC Leaders Meeting In Coordination with The Ministry of Health of The Republic of Indonesia excellence In Medical Device Regulation And Innovation" by Gakeslab Indonesia. Developed with Laravel 
+
+## About Laravel
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
 
 <p align="center">
@@ -6,8 +14,6 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
-
-## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
@@ -21,43 +27,73 @@ Laravel is a web application framework with expressive, elegant syntax. We belie
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
-## Learning Laravel
+## Getting Started
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- Follow the instructions on the [Laravel documentation](https://laravel.com/docs/installation) to install Laravel.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Prerequisites
 
-## Laravel Sponsors
+- Install PHP, Composer, and other prerequisites as per [Laravel documentation](https://laravel.com/docs/installation#server-requirements).
+- Install and enable Imagick on your machine/server.
+- A DOKU account for integrating the DOKU payment gateway. If you don't have one, you can register for a DOKU account at [DOKU Registration Page](https://dashboard.doku.com/bo/register?utm_id=selfonboard).
+  
+## Environment Variables
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+Before running the application, make sure to set up the following environment variables in your `.env` file. Below is an example `.env.example` file that you can rename to `.env` and customize as needed:
 
-### Premium Partners
+````plaintext
+APP_NAME=YourApp
+APP_ENV=local
+APP_KEY=base64:<your-random-key>
+APP_DEBUG=true
+APP_URL=http://localhost
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=your_database
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
 
-## Contributing
+MAIL_USERNAME=your_mail_username ## for registration mailing
+MAIL_PASSWORD=your_mail_password ## Explain that this needs to be 'APP password'. You can generate it through Google Account settings: https://support.google.com/mail/answer/185833?hl=en
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+# DOKU Checkout Payment Gateway Configuration
+DOKU_CLIENT_ID="MCH-0197-1687176144098"  ## Provide client ID obtained from DOKU
+DOKU_CLIENT_SECRET="SK-gTcg6LWFLD8SnO0BNW9p"  ## Provide client secret obtained from DOKU
+DOKU_API="https://api-sandbox.doku.com"  ## DOKU API endpoint for sandbox mode
+DOKU_API_IPG="https://sandbox.doku.com"  ## DOKU IPG endpoint for sandbox mode
 
-## Code of Conduct
+# Other environment variables...
+````
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Payment Gateway Setup
 
-## Security Vulnerabilities
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+**DOKU PHP Library: [DOKU PHP Library GitHub Repository](https://github.com/PTNUSASATUINTIARTHA-DOKU/jokul-php-library)**
+
+To enable the [DOKU payment gateway](https://developers.doku.com/accept-payment/doku-checkout) for your application, you need to register for a DOKU account and obtain your credentials. Please follow these steps:
+
+- Register for a DOKU account at [DOKU Registration Page](https://dashboard.doku.com/bo/register?utm_id=selfonboard) or log in if you already have an account at DOKU Login Page.
+- Once registered, navigate to the [DOKU Developer Documentation at DOKU Developer Docs](https://developers.doku.com/) to understand the integration process and obtain your client ID and client secret for sandbox mode.
+- After obtaining your credentials, replace the placeholders in the .env file with your actual DOKU credentials.
+- For further assistance or inquiries, please contact the DOKU sales team for more information.
+
+By following these steps, you can integrate the DOKU payment gateway into your application for testing purposes.
+
+
+## Migration
+- Run the following command to migrate the database:
+
+```bash
+php artisan migrate
+````
+
+## Other Dependencies
+
+- "simplesoftwareio/simple-qrcode": "~4"
+  for QR code generation
+
 
 ## License
 
