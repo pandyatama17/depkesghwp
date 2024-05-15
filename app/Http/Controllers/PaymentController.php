@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class PaymentController extends Controller
 {
@@ -321,6 +322,7 @@ class PaymentController extends Controller
         $payment = Payment::where('request_id', $requestId)->first();
         $url =  env('DOKU_API_IPG')."/checkout/v1/payment/{$payment->session_id}/check-status";
         $checkDokuResponse = HTTP::get($url);
+        $csrfToken = Session::token();
 
         if ($checkDokuResponse->successful()) {
             $checkDokuData = $checkDokuResponse->json();
@@ -332,6 +334,8 @@ class PaymentController extends Controller
                 if ($payment->status === "PAID") {
                     $payloadData = json_decode($payment->payload, true);
                     $payloadData['payment_method'] = $payment->payment_method;
+                    $payloadData['_token'] = $csrfToken; // Include the new CSRF token
+                    
                     try {
                         $request = Request::create(route('store_registration'), 'POST', $payloadData);
                         $response = app()->handle($request);
@@ -341,31 +345,52 @@ class PaymentController extends Controller
                             $registrationId = $responseData['registrationId'];
                             $payment->registration_id = $registrationId;
                             $payment->save();
-
+                
                             // Flash the success message
                             Session::flash('response', [
                                 'success' => true,
                                 'message' => $responseData['message'],
                                 'registrationId' => $registrationId,
                                 'error' => null,
+                                'removeable' => false,
                             ]);
                         } else {
                             // Flash the error message
-                            Session::flash('response', [
-                                'success' => false,
-                                'message' => 'Registration failed. Please contact <a href="mailto:sekretariat@gakeslabindonesia.id">sekretariat@gakeslabindonesia.id</a>. if your transaction is valid but you didn&quot;t receive the confirmation e-mail',
-                                'error' => 'Registration store request failed',
-                            ]);
+                            if (Auth::check()) {
+                                Session::flash('response', [
+                                    'success' => false,
+                                    'message' => 'Registration store request failed',
+                                    'error' => 'Registration store request failed',
+                                    'removeable' => false,
+                                ]);
+                            } else {
+                                Session::flash('response', [
+                                    'success' => false,
+                                    'message' => 'An error occurred while processing your payment. Please try again later.',
+                                    'error' => 'Registration store request failed',
+                                    'removeable' => false,
+                                ]);
+                            }
                         }
                     } catch (\Exception $e) {
                         $payment->error_log = $e->getMessage()."    ".json_encode($response); 
                         $payment->save();
                         // Flash the error message
-                        Session::flash('response', [
-                            'success' => false,
-                            'message' => 'Registration failed. Please contact <a href="mailto:sekretariat@gakeslabindonesia.id">sekretariat@gakeslabindonesia.id</a>. if your transaction is valid but you didn&quot;t receive the confirmation e-mail',
-                            'error' => $e->getMessage(),
-                        ]);
+                        if (Auth::check()) {
+                            Session::flash('response', [
+                                'success' => false,
+                                'message' => $e->getMessage(),
+                                'error' => $e->getMessage(),
+                                'removeable' => false,
+                            ]);
+                        } else {
+                            Session::flash('response', [
+                                'success' => false,
+                                'message' => 'An error occurred while processing your payment. Please try again later.',
+                                'error' => $e->getMessage(),
+                                'removeable' => false,
+                            ]);
+                        }
                     }
                 } else {
                     // Flash the error message
@@ -373,6 +398,7 @@ class PaymentController extends Controller
                         'success' => false,
                         'message' => 'Payment status is not PAID',
                         'error' => null,
+                        'removeable' => true,
                     ]);
                 }
             } else {
@@ -381,19 +407,27 @@ class PaymentController extends Controller
                     'success' => false,
                     'message' => 'Unexpected response from Doku API',
                     'error' => null,
+                    'removeable' => true,
                 ]);
             }
         } else {
             // Flash the error message
             Session::flash('response', [
                 'success' => false,
-                'message' => 'Error accessing Doku API',
-                'error' => null,
+                'message' => 'Error accessing Doku API or Expired payment session ID',
+                'error' => '<b>checkDokuResponse hit to </b>'.$url.'<b> returns :</b><br><br>'.$checkDokuResponse->body(),
+                'removeable' => true,
             ]);
         }
 
-        // Redirect to the main route
-        return redirect()->route('main');
+        // Redirect based on authentication status
+        if (Auth::check()) {
+            $response = Session::get('response');
+            Session::forget('response');
+            return response()->json($response);
+        } else {
+            return redirect()->route('main');
+        }
     }   
 
 }

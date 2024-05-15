@@ -176,4 +176,25 @@ class RegistrationController extends Controller
         return $writer->writeString($data);
     }
 
+    public function show($id)
+    {
+        try {
+            // Decrypt the registration ID
+            $registrationId = Crypt::decrypt($id);
+            // $registrationId = $id;
+
+            // Retrieve the registration and associated details
+            $registration = Registration::findOrFail($registrationId);
+            $registrationDetails = RegistrationDetail::where('registration_id', $registrationId)->get();
+            $breadcrumbs = ['Home', 'Registrations', 'Details', $registrationId];
+
+            
+            return view('registration.details', compact('registration', 'registrationDetails','breadcrumbs'));
+        } catch (\Exception $e) {
+            // Handle decryption or not found exception
+            abort(404);
+            // return $e->getMessage();
+        }
+    }
+
 }
