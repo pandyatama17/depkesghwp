@@ -148,7 +148,7 @@ class PaymentController extends Controller
         $activityMapping = [
             'local' => [
                 'activity_1' => ['Day 1 Session-Inc. Opening Ceremony + TC Open Meeting - Local Participant', 2000000],
-                'activity_2' => ['Day 1 Half Day Session - Foreign Participant', 1000000],
+                'activity_2' => ['Day 1 Half Day Session - Local Participant', 1000000],
                 'activity_3' => ['Day 2 Session - Local Participant', 2000000],
                 'activity_4' => ['2 Days Package -include Opening Ceremony and TC Open Meeting- Local Participant', 3750000],
                 'activity_5' => ['Halal Awareness by IHATEC + Attendance certificate - Local Participant', 2600000],
