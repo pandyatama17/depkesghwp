@@ -201,7 +201,7 @@ class PaymentController extends Controller
 
         $body = [
             "customer" => [
-                "address" => $r['address'],
+                "address" => preg_replace('/[^A-Za-z0-9\s,.-]/', '', str_replace(["\r", "\n"], ' ', $r['address'])),
                 "country" => "ID",
                 "email" => $r['email'],
                 "name" => $r['name'],
