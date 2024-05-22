@@ -29,14 +29,14 @@ Route::group(['middleware' => ['web']], function () {
     Route::post('/registration/store', [RegistrationController::class, 'store'])->name('store_registration');
     Route::put('/registration/update-session-id', [PaymentController::class, 'updateSessionId'])->name('update_session_id');
     Route::get('/registration/validate-payment/{id}', [PaymentController::class, 'validatePayment'])->name('validate_payment');
-    Route::get('test', fn () => phpinfo());
     Route::get('/registration/details/{id}', [RegistrationController::class, 'show'])->name('registration_details');
 
 });
 
-Route::get('/admin', function () {return view('dashboard');})->middleware(['auth'])->name('dashboard');
+// Route::get('/admin', function () {return view('dashboard');})->middleware(['auth'])->name('dashboard');
 
 Route::group(['middleware' => ['auth']], function () {
+    Route::get('/admin/dashboard', [AdminCOntroller::class, 'dashboard'])->middleware(['auth'])->name('dashboard');
 
     Route::get('/admin/registration/list/{cat}', [AdminCOntroller::class, 'showRegistrations'])->name('admin_show_registrations');
     Route::get('/admin/registration/validate-form/', [AdminController::class, 'validatePaymentForm'])->name('validate_payment_form');

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>RegGakeslab Admin</title>
     <meta name="app-url" content="{{ env('APP_URL') }}">
-    
+
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <link rel="stylesheet" href="{{ asset('AdminLTE/plugins/fontawesome-free/css/all.min.css') }}">
@@ -17,50 +17,56 @@
     <link rel="stylesheet" href="{{ asset('AdminLTE/plugins/icheck-bootstrap/icheck-bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('AdminLTE/plugins/jqvmap/jqvmap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('AdminLTE/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('AdminLTE/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('AdminLTE/plugins/select2/css/select2.min.css')}}">
-    <link rel="stylesheet" href="{{ asset('AdminLTE/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css')}}">
+    <link rel="stylesheet"
+        href="{{ asset('AdminLTE/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('AdminLTE/plugins/select2/css/select2.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('AdminLTE/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('AdminLTE/plugins/datatables-buttons/css/buttons.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('AdminLTE/dist/css/adminlte.min.css') }}">
     <link rel="stylesheet" href="{{ asset('AdminLTE/plugins/overlayScrollbars/css/OverlayScrollbars.min.css') }}">
     <link rel="stylesheet" href="{{ asset('AdminLTE/plugins/daterangepicker/daterangepicker.css') }}">
     <link rel="stylesheet" href="{{ asset('AdminLTE/plugins/summernote/summernote-bs4.min.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.8/dist/sweetalert2.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('admin-main.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('AdminLTE/plugins/jquery/jquery.min.js') }}"></script>
+    <script src="{{ asset('AdminLTE/plugins/jquery-ui/jquery-ui.min.js') }}"></script>
+    <script>
+        $.widget.bridge('uibutton', $.ui.button)
+    </script>
+    <script src="{{ asset('AdminLTE/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('AdminLTE/plugins/datatables/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('AdminLTE/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('AdminLTE/plugins/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ asset('AdminLTE/plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('AdminLTE/plugins/datatables-buttons/js/dataTables.buttons.min.js') }}"></script>
+    <script src="{{ asset('AdminLTE/plugins/datatables-buttons/js/buttons.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('AdminLTE/plugins/jszip/jszip.min.js') }}"></script>
+    <script src="{{ asset('AdminLTE/plugins/pdfmake/pdfmake.min.js') }}"></script>
+    <script src="{{ asset('AdminLTE/plugins/pdfmake/vfs_fonts.js') }}"></script>
+    <script src="{{ asset('AdminLTE/plugins/datatables-buttons/js/buttons.html5.min.js') }}"></script>
+    <script src="{{ asset('AdminLTE/plugins/datatables-buttons/js/buttons.print.min.js') }}"></script>
+    <script src="{{ asset('AdminLTE/plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
+    <script src="{{ asset('AdminLTE/plugins/chart.js/Chart.min.js') }}"></script>
+    <script src="{{ asset('AdminLTE/plugins/sparklines/sparkline.js') }}"></script>
+    <script src="{{ asset('AdminLTE/plugins/jqvmap/jquery.vmap.min.js') }}"></script>
+    <script src="{{ asset('AdminLTE/plugins/jqvmap/maps/jquery.vmap.usa.js') }}"></script>
+    <script src="{{ asset('AdminLTE/plugins/jquery-knob/jquery.knob.min.js') }}"></script>
+    <script src="{{ asset('AdminLTE/plugins/moment/moment.min.js') }}"></script>
+    <script src="{{ asset('AdminLTE/plugins/daterangepicker/daterangepicker.js') }}"></script>
+    <script src="{{ asset('AdminLTE/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js') }}"></script>
+    <script src="{{ asset('AdminLTE/plugins/summernote/summernote-bs4.min.js') }}"></script>
+    <script src="{{ asset('AdminLTE/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js') }}"></script>
+    <script src="{{ asset('AdminLTE/plugins/select2/js/select2.full.min.js') }}"></script>
+    <script src="{{ asset('AdminLTE/dist/js/adminlte.min.js') }}"></script>
+    <script src="{{ asset('AdminLTE/plugins/jquery-mousewheel/jquery.mousewheel.js')}}"></script>
+    <script src="{{ asset('AdminLTE/plugins/raphael/raphael.min.js')}}"></script>
+    <script src="{{ asset('AdminLTE/plugins/jquery-mapael/jquery.mapael.min.js')}}"></script>
+    <script src="{{ asset('AdminLTE/plugins/jquery-mapael/maps/usa_states.min.js')}}"></script>
+    <script src="{{ asset('AdminLTE/plugins/chart.js/Chart.min.js') }}"></script>
+    <script src="{{ asset('admin-main.js') }}"></script>
+    {{-- <script src="{{ asset('admin-charts.js') }}"></script> --}}
 
-    <style>
-        .card{
-            box-shadow: 0 4px 4px rgba(0, 0, 0, .25);
-        }
-        #submitLoader {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(255, 255, 255, 0.7); /* Semi-transparent white background */
-        z-index: 9999;
-        justify-content: center; /* Center items horizontally */
-        align-items: center; /* Center items vertically */
-        }
-
-        .loader {
-        border: 8px solid #f3f3f3; /* Light grey */
-        border-top: 8px solid #3498db; /* Blue */
-        border-radius: 50%;
-        width: 50px;
-        height: 50px;
-        animation: spin 1s linear infinite; /* Spin animation */
-        }
-
-        @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-        }
-
-
-    </style>
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -111,7 +117,7 @@
           <a href="#" class="d-block">Alexander Pierce</a>
         </div>
       </div> --}}
-        <!-- Sidebar Menu -->
+                <!-- Sidebar Menu -->
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
                         data-accordion="false">
@@ -156,7 +162,8 @@
                                     </a>
                                     <ul class="nav nav-treeview">
                                         <li class="nav-item">
-                                            <a href="{{ route('admin_show_registrations', 'doku') }}" class="nav-link">
+                                            <a href="{{ route('admin_show_registrations', 'doku') }}"
+                                                class="nav-link">
                                                 <i class="fa fa-credit-card nav-icon"></i>
                                                 <p>Credit Card</p>
                                             </a>
@@ -181,7 +188,7 @@
                         </li>
                         <li class="nav-header">Tools</li>
                         <li class="nav-item">
-                            <a href="{{route('validate_payment_form')}}" class="nav-link">
+                            <a href="{{ route('validate_payment_form') }}" class="nav-link">
                                 <i class="nav-icon fas fa-undo"></i>
                                 <p>
                                     Payment Validation
@@ -189,7 +196,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{route('mail_resend_form')}}" class="nav-link">
+                            <a href="{{ route('mail_resend_form') }}" class="nav-link">
                                 <i class="nav-icon fas fa-envelope"></i>
                                 <p>
                                     Resend Email
@@ -214,8 +221,9 @@
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <a :href="route('logout')"
-                                        onclick="event.preventDefault();
-                                                    this.closest('form').submit();" class="nav-link" style="cursor:pointer">
+                                    onclick="event.preventDefault();
+                                                    this.closest('form').submit();"
+                                    class="nav-link" style="cursor:pointer">
                                     <i class="fa fa-sign-out nav-icon"></i>
                                     {{ __('Log Out') }}
                                 </a>
@@ -276,7 +284,7 @@
             <strong>Copyright &copy; 2024 <a href="https://github.com/pandyatama17/">Kimochiinside</a>.</strong>
             All rights reserved.
             <div class="float-right d-none d-sm-inline-block">
-                <b>Version</b> {{env('APP_VERSION')}}
+                <b>Version</b> {{ env('APP_VERSION') }}
             </div>
         </footer>
 
@@ -287,47 +295,15 @@
         <!-- /.control-sidebar -->
     </div>
     <!-- ./wrapper -->
-
-    <script src="{{ asset('AdminLTE/plugins/jquery/jquery.min.js') }}"></script>
-    <script src="{{ asset('AdminLTE/plugins/jquery-ui/jquery-ui.min.js') }}"></script>
-    <script>
-        $.widget.bridge('uibutton', $.ui.button)
-    </script>
-    <script src="{{ asset('AdminLTE/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ asset('AdminLTE/plugins/datatables/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ asset('AdminLTE/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('AdminLTE/plugins/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
-    <script src="{{ asset('AdminLTE/plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('AdminLTE/plugins/datatables-buttons/js/dataTables.buttons.min.js') }}"></script>
-    <script src="{{ asset('AdminLTE/plugins/datatables-buttons/js/buttons.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('AdminLTE/plugins/jszip/jszip.min.js') }}"></script>
-    <script src="{{ asset('AdminLTE/plugins/pdfmake/pdfmake.min.js') }}"></script>
-    <script src="{{ asset('AdminLTE/plugins/pdfmake/vfs_fonts.js') }}"></script>
-    <script src="{{ asset('AdminLTE/plugins/datatables-buttons/js/buttons.html5.min.js') }}"></script>
-    <script src="{{ asset('AdminLTE/plugins/datatables-buttons/js/buttons.print.min.js') }}"></script>
-    <script src="{{ asset('AdminLTE/plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
-    <script src="{{ asset('AdminLTE/plugins/chart.js/Chart.min.js') }}"></script>
-    <script src="{{ asset('AdminLTE/plugins/sparklines/sparkline.js') }}"></script>
-    <script src="{{ asset('AdminLTE/plugins/jqvmap/jquery.vmap.min.js') }}"></script>
-    <script src="{{ asset('AdminLTE/plugins/jqvmap/maps/jquery.vmap.usa.js') }}"></script>
-    <script src="{{ asset('AdminLTE/plugins/jquery-knob/jquery.knob.min.js') }}"></script>
-    <script src="{{ asset('AdminLTE/plugins/moment/moment.min.js') }}"></script>
-    <script src="{{ asset('AdminLTE/plugins/daterangepicker/daterangepicker.js') }}"></script>
-    <script src="{{ asset('AdminLTE/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js') }}"></script>
-    <script src="{{ asset('AdminLTE/plugins/summernote/summernote-bs4.min.js') }}"></script>
-    <script src="{{ asset('AdminLTE/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js') }}"></script>
-    <script src="{{ asset('AdminLTE/plugins/select2/js/select2.full.min.js')}}"></script>
-    <script src="{{ asset('AdminLTE/dist/js/adminlte.min.js') }}"></script>
-    {{-- <script src="{{ asset('AdminLTE/dist/js/pages/dashboard.js') }}"></script> --}}
-    <script src="{{ asset('admin-main.js') }}"></script>
-    @if(Session::has('response'))
+    @if (Session::has('response'))
         <script>
             swal.fire({
-                title: '{{ Session::get('response')['success'] ? "Success" : "Error" }}',
+                title: '{{ Session::get('response')['success'] ? 'Success' : 'Error' }}',
                 html: '{!! Session::get('response')['message'] !!}',
-                icon: '{{ Session::get('response')['success'] ? "success" : "error" }}'
+                icon: '{{ Session::get('response')['success'] ? 'success' : 'error' }}'
             });
         </script>
     @endif
 </body>
+
 </html>

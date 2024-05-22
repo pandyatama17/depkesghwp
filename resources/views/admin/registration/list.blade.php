@@ -1,5 +1,9 @@
 @extends('layouts.wrapper')
 
+@php
+use Carbon\Carbon;
+@endphp
+
 @section('title')
     @if ($type == 'all')
         All Registration Data
@@ -21,7 +25,7 @@
 
 @section('content')
     <div class="container">
-        <table class="table datatable table-bordered table-hover">
+        <table class="table datatable table-bordered table-hover" id="registrationListTable">
             <thead>
                 <tr>
                     <th class="none">Registration ID</th>
@@ -33,8 +37,8 @@
                     <th class="none">Total Amount</th>
                     <th class="none">Payment Method/Status</th>
                     <th class="none">Address</th>
-                    <th class="none">Created At</th>
-                    <th class="none">Updated At</th>
+                    <th class="all">Register Date</th>
+                    {{-- <th class="none">Updated At</th> --}}
                     <th class="all">Actions</th>
                 </tr>
             </thead>
@@ -77,8 +81,10 @@
                             @endif
                         </td>
                         <td>{{ $registration->address }}</td>
-                        <td>{{ $registration->created_at }}</td>
-                        <td>{{ $registration->updated_at }}</td>
+                        <td data-full-datetime="{{ Carbon::parse($registration->created_at)->format('Y-m-d H:i:s') }}">
+                            {{ Carbon::parse($registration->created_at)->format('Y-m-d') }}
+                        </td>
+                        {{-- <td>{{ $registration->updated_at }}</td> --}}
                         <td>
                             <a href="{{ $registration->id !== 0 ? route('registration_details', ['id' => Crypt::encrypt($registration->id)]) : route('registration_details', ['id' => $registration->request_id]) }}" class="btn btn-success {{ $registration->id === 0 ? 'disabled' : '' }}">
                                 <i class="fa fa-eye"></i>

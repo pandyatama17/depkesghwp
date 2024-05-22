@@ -32,26 +32,64 @@ $(document).ready(function () {
         }
     }, 1000);
 
-    $('.datatable').DataTable({
-        "paging": true,
-        "lengthChange": false,
-        "searching": true,
-        "ordering": true,
-        "info": true,
-        "autoWidth": false,
-        "responsive": {
-            details: {
-                display: DataTable.Responsive.display.modal({
-                    header: function (row) {
-                        var data = row.data();
-                        return 'Details for Registration ID : ' + data[0] + ', ' + data[1];
+    $('.datatable').each(function() {
+        var table = $(this);
+    
+        var options = {
+            "paging": true,
+            "lengthChange": false,
+            "searching": true,
+            "ordering": true,
+            "info": true,
+            "autoWidth": false,
+            "responsive": {
+                details: {
+                    display: $.fn.dataTable.Responsive.display.modal({
+                        header: function (row) {
+                            var data = row.data();
+                            return 'Details for Registration ID : ' + data[0] + ', ' + data[1];
+                        }
+                    }),
+                    renderer: function (api, rowIdx, columns) {
+                        var data = $.map(columns, function (col) {
+                            var cell = api.cell(rowIdx, col.columnIndex).node();
+                            if (col.title === 'Register Date') {
+                                var fullDateTime = $(cell).data('full-datetime');
+                                return '<tr data-dt-row="' + rowIdx + '" data-dt-column="' + col.columnIndex + '">' +
+                                    '<td>' + col.title + ':' + '</td> ' +
+                                    '<td>' + fullDateTime + '</td>' +
+                                    '</tr>';
+                            } else {
+                                return '<tr data-dt-row="' + rowIdx + '" data-dt-column="' + col.columnIndex + '">' +
+                                    '<td>' + col.title + ':' + '</td> ' +
+                                    '<td>' + col.data + '</td>' +
+                                    '</tr>';
+                            }
+                        }).join('');
+    
+                        return $('<table/>').append(data);
                     }
-                }),
-                renderer: DataTable.Responsive.renderer.tableAll()
+                }
             }
+        };
+    
+        if (table.attr('id') === 'registrationListTable') {
+            options["columnDefs"] = [{
+                "targets": 9, 
+                "type": "date",
+                "render": function(data, type, row, meta) {
+                    if (type === 'display' || type === 'filter') {
+                        return $(meta.settings.aoData[meta.row].anCells[meta.col]).data('full-datetime').split(' ')[0];
+                    }
+                    return data;
+                },
+            }];
+            options["order"] = [[9, 'desc']];
         }
-        // "responsive":true
-    });
+    
+        table.DataTable(options);
+    });    
+    
     $('.select2').select2();
     // Handle change event on select dropdown
     $('#validatePaymentID').on('change', function() {

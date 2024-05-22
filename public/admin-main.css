@@ -1,0 +1,69 @@
+.card {
+    box-shadow: 0 4px 4px rgba(0, 0, 0, .25);
+}
+
+#submitLoader {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.7);
+    /* Semi-transparent white background */
+    z-index: 9999;
+    justify-content: center;
+    /* Center items horizontally */
+    align-items: center;
+    /* Center items vertically */
+}
+
+.loader {
+    border: 8px solid #f3f3f3;
+    /* Light grey */
+    border-top: 8px solid #3498db;
+    /* Blue */
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    /* Spin animation */
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.main-sidebar,
+.main-header {
+    z-index: 2050;
+    /* Ensure this is higher than the overlay's z-index */
+}
+
+.content-wrapper>* {
+    position: relative;
+    z-index: 1050;
+    /* Ensure the content is above the overlay */
+}
+
+.lock-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.3);
+    /* Adjust the color and opacity */
+    backdrop-filter: blur(15px);
+    /* Adjust the blur intensity */
+    z-index: 9999;
+    /* Ensure it's on top of everything else */
+    /* pointer-events: none; */
+    pointer-events: auto;
+}

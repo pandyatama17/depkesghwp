@@ -250,9 +250,9 @@
                                 <select name="honorific" class="form-control default-option" id="input-honorific">
                                     <option selected disabled style="color:grey">Title</option>
                                     <option value="Mr">Mr.</option>
-                                    <option value="Mr">Mrs.</option>
-                                    <option value="Mr">Ms.</option>
-                                    <option value="Mr">Dr.</option>
+                                    <option value="Mrs">Mrs.</option>
+                                    <option value="Ms">Ms.</option>
+                                    <option value="Dr">Dr.</option>
                                 </select>
                                 <span class="asterisk dm-65">*</span>
                             </div>
@@ -351,9 +351,9 @@
                                     <div class="radio">
                                         <label><input type="radio" name="payment_method" value="doku" checked> Credit Card</label>
                                     </div>
-                                    {{-- <div class="radio">
+                                    <div class="radio">
                                         <label><input type="radio" name="payment_method" value="transfer"> Bank Transfer (IDR only)</label>
-                                    </div> --}}
+                                    </div>
                                     <div class="radio">
                                         <label><input type="radio" name="payment_method" value="letter"> Pay with Guarantee Letter</label>
                                     </div>
