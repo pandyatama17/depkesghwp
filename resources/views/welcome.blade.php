@@ -178,14 +178,14 @@
                         
                         <div class="form-holder col-5-5 col-sm-11 activity">
                             <h4>Wednesday - Thursday, June 12-13, 2024</h4>
-                            <p><b>Package Price</b></p>
-                            <p> - 2 Days Capacity Building, include Opening Ceremony and TC Open Meeting</p>
+                            <p><b>Package Price </b>for CB only</p>
+                            <p> - 2 Days Capacity Building, half day session at 1st day + full session day at 2nd day <small>(does not include Opening Ceremony and TC Open Meeting)</small></p>
                             <br>
                             <div class="radio">
-                                <label><input type="radio" name="activity_4" value="local" data-price="IDR3750000" data-activity="2 Days Package (include Opening Ceremony and TC Open Meeting) - Local Participant"> Local Participants (IDR 3.750.000,-)</label>
+                                <label><input type="radio" name="activity_4" value="local" data-price="IDR3000000" data-activity="2 Days Package (Half day session at 1st day and full day session at 2nd day not including Opening Ceremony and TC Open Meeting) - Local Participant"> Local Participants (IDR 3.000.000,-)</label>
                             </div>
                             <div class="radio">
-                                <label><input type="radio" name="activity_4" value="foreign" data-price="USD500" data-converted-price="8150000" data-activity="2 Days Package (include Opening Ceremony and TC Open Meeting) - Foreign Participant"> Foreign Participants (USD 500,-)</label>
+                                <label><input type="radio" name="activity_4" value="foreign" data-price="USD500" data-converted-price="6112500" data-activity="2 Days Package (Half day session at 1st day and full day session at 2nd day not including Opening Ceremony and TC Open Meeting) - Foreign Participant"> Foreign Participants (USD 375,-)</label>
                             </div>
                             <button type="button" class="revert-btn" data-target="activity_4">Revert Selection</button>
                             <br>
@@ -561,7 +561,7 @@
                 $('.activity .radio input[type="radio"]').each(function() {
                     if ($(this).is(':checked')) {
                         var selectedActivity = $(this).attr('name');
-                        if (selectedActivity === 'activity_1' || selectedActivity === 'activity_4') {
+                        if (selectedActivity === 'activity_1') {
                             // Mark that a full activity was found
                             hasFullActivity = true;
                             fullActivity = selectedActivity;
