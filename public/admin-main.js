@@ -14,6 +14,7 @@ $(document).ready(function () {
 
     // If the request_id exists, trigger the change event on the dropdown
     setTimeout(() => {
+        $('.lock-overlay').fadeIn(1500);
         console.log(requestId);
         var $dropdown = $('#validatePaymentID');
         var optionExists = $dropdown.find('option[value="' + requestId + '"]').length > 0;

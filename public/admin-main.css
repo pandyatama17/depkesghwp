@@ -66,4 +66,5 @@
     /* Ensure it's on top of everything else */
     /* pointer-events: none; */
     pointer-events: auto;
+    display: none;
 }
