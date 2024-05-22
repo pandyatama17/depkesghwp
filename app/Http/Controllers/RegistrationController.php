@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Storage; // Import the Storage facade
 
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Http;
 
 class RegistrationController extends Controller
 {
@@ -42,6 +43,21 @@ class RegistrationController extends Controller
             $registration->payment_signature = null;
             $registration->payment_date = null;
     
+            // if ($registration->payment_method == 'letter') {
+            //     if ($r->guarantee_letter_id) {
+            //         $registration->guarantee_letter_id = $r->guarantee_letter_id;
+            //     }
+            //     else
+            //     {
+            //         DB::rollback(); 
+            //         return response()->json([
+            //             'success' => false,
+            //             'message' => 'Failed to attach Guarantee Letter',
+            //             'error' => 'guarantee letter not found!',
+            //         ]);
+            //     }
+            // }
+
             // Step 3: Save the Registration model
             $registration->save();
             
@@ -85,7 +101,7 @@ class RegistrationController extends Controller
                         'activity_5' => ['Halal Awareness by IHATEC + Attendance certificate - Foreign Participant', 250 * 16300], // Multiply by 16300
                         'activity_7' => ['Gala Dinner - Foreign Participant', 100 * 16300], // Multiply by 16300
                     ],
-                ];                                
+                ];                                                         
     
            // Step 5: Create and save RegistrationDetail model instances for each activity
             $registrationDetails = [];
@@ -131,8 +147,27 @@ class RegistrationController extends Controller
                     $m->to($registration->email, $registration->name)
                         ->subject('Your Registration Details')
                         ->embedData($qr, 'qr_code.png', 'image/png');
+                        
+                    if ($registration->payment_method == 'letter') {
+                        $guaranteeLetterUrl = 'https://reggakeslab.com/Guarantee%20Letter%20for%20payment_CB%20GHWP__bilingual.docx';
+                        $fileContents = Http::get($guaranteeLetterUrl)->body();
+                        $m->attachData($fileContents, 'Guarantee_Letter.docx');
+                    }
                 });
-                //  
+
+                // Mail::send('emails.registration_confirmation', [
+                //     'registration' => $registration,
+                //     'registrationDetails'=>$registrationDetails
+                // ], function ($m) use ($registration) {
+                //     $m->to($registration->email, $registration->name)
+                //         ->subject('Your Registration Details');
+
+                //     if ($registration->payment_method == 'letter') {
+                //         $guaranteeLetterPath = public_path('Guarantee Letter for payment_CB GHWP__bilingual.docx');
+                //         $m->attach($guaranteeLetterPath);
+                //     }
+                // });
+
             } catch (\Exception $mailException) {
                 DB::rollback(); // Rollback transaction if email sending fails
                 throw $mailException; // Re-throw exception
@@ -160,22 +195,7 @@ class RegistrationController extends Controller
             ]);
         }
     }
-
-    public function generateQRCode($data)
-    {
-        // Create an instance of the ImageRenderer
-        $renderer = new ImageRenderer(
-            new Rgb(0, 0, 0), // Foreground color
-            new Rgb(255, 255, 255) // Background color
-        );
-
-        // Create an instance of the Writer
-        $writer = new Writer($renderer);
-
-        // Generate the QR code image
-        return $writer->writeString($data);
-    }
-
+    
     public function show($id)
     {
         try {
@@ -197,4 +217,22 @@ class RegistrationController extends Controller
         }
     }
 
+    public function uploadGuaranteeLetter(Request $request)
+    {
+
+        $request->validate([
+            'guarantee_letter' => 'required|file|mimes:pdf,doc,docx|max:5120', 
+        ]);
+
+        $file = $request->file('guarantee_letter');
+        $fileName = time() . '_' . $file->getClientOriginalName();
+        $filePath = $file->storeAs('guarantee_letters', $fileName);
+
+        $guaranteeLetter = new GuaranteeLetter();
+        $guaranteeLetter->file_name = $fileName;
+        $guaranteeLetter->file_path = $filePath;
+        $guaranteeLetter->save();
+
+        return response()->json(['id' => $guaranteeLetter->id]);
+    }
 }

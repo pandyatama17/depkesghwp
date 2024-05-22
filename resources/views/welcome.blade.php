@@ -185,7 +185,7 @@
                                 <label><input type="radio" name="activity_4" value="local" data-price="IDR3000000" data-activity="2 Days Package (Half day session at 1st day and full day session at 2nd day not including Opening Ceremony and TC Open Meeting) - Local Participant"> Local Participants (IDR 3.000.000,-)</label>
                             </div>
                             <div class="radio">
-                                <label><input type="radio" name="activity_4" value="foreign" data-price="USD500" data-converted-price="6112500" data-activity="2 Days Package (Half day session at 1st day and full day session at 2nd day not including Opening Ceremony and TC Open Meeting) - Foreign Participant"> Foreign Participants (USD 375,-)</label>
+                                <label><input type="radio" name="activity_4" value="foreign" data-price="USD375" data-converted-price="6112500" data-activity="2 Days Package (Half day session at 1st day and full day session at 2nd day not including Opening Ceremony and TC Open Meeting) - Foreign Participant"> Foreign Participants (USD 375,-)</label>
                             </div>
                             <button type="button" class="revert-btn" data-target="activity_4">Revert Selection</button>
                             <br>
@@ -346,7 +346,7 @@
                                     </div>
                                     <br>
                                 </div>
-                                <div class="form-holder col-5-5 col-sm-11">
+                                <div class="form-holder col-md-6 col-sm-11">
                                     <h4 style="margin-bottom:10px">Payment Option<sup style="color: red">*</sup></h4>
                                     <div class="radio">
                                         <label><input type="radio" name="payment_method" value="doku" checked> Credit Card</label>
@@ -355,7 +355,7 @@
                                         <label><input type="radio" name="payment_method" value="transfer"> Bank Transfer (IDR only)</label>
                                     </div>
                                     <div class="radio">
-                                        <label><input type="radio" name="payment_method" value="letter"> Pay with Guarantee Letter</label>
+                                        <label><input type="radio" name="payment_method" value="letter"> Pay with Guarantee Letter (for manual bank transfer, payment with term and pay using CC onsite)</label>
                                     </div>
                                     <br>
                                 </div>
@@ -374,6 +374,7 @@
             <input type="hidden" name="phone" id="formatted-phone"> 
             <input type="hidden" name="fax" id="formatted-fax">
             <input type="hidden" name="fee" id="fee_amount">
+            {{-- <input type="hidden" name="guarantee_letter_id" id="guarantee_letter_id"> --}}
         </form>
     </div>
     <script>
@@ -661,7 +662,7 @@
                     '<td style="text-align:right" class="subtotal">Subtotal:</td>' +
                     '<td style="text-align:right" colspan="2" class="subtotal">' + (subtotalCurrency === 'IDR' ? 'IDR ' : 'USD $') + subtotalDisplay.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,') + '</td>' +
                     '</tr>' +
-                    (subtotalCurrency === 'USD' ? '<tr><td style="text-align:right" class="subtotal">Exchange rate <i class="zmdi zmdi-pin-help small"></i> :</td><td style="text-align:right" colspan="2" class="subtotal">USD $1 = Rp. 16.300</td></tr>' : '') + 
+                    (subtotalCurrency === 'USD' ? '<tr><td style="text-align:right" class="subtotal">Exchange rate <i class="zmdi zmdi-pin-help small" style="color:#17a2b8; cursor:pointer"></i> :</td><td style="text-align:right" colspan="2" class="subtotal">USD $1 = Rp. 16.300</td></tr>' : '') + 
                     (paymentType === 'doku' || paymentType === 'transfer' ? feeRow : '') +
                     '<tr>' +
                     '<td style="text-align:right" class="total">Total:</td>' +
@@ -698,7 +699,22 @@
                 });
             });
             $(".iti").css('width','100%');
+            
+            window.bottomPosition = parseFloat($('.actions ul').css('bottom'));
+            window.bottomPosition = parseFloat($('.steps').css('bottom'));
 
+            $('input[name="payment_method"]').on('change', function() {
+                var paymentMethod = $(this).val();
+
+                if (paymentMethod === 'letter') {
+                    // openUploadModal();
+                    $('.actions ul').css('bottom', window.actionsBottom).css('bottom', '-=19px');
+                    $('.steps').css('bottom', window.stepsBottom).css('bottom', '-=19px');
+                } else {
+                    $('.actions ul').css('bottom', window.actionsBottom).css('bottom', '-=39px');
+                    $('.steps').css('bottom', window.stepsBottom).css('bottom', '-=39px');
+                }
+            });
         });
     </script>
     <script>
@@ -812,6 +828,60 @@
                 text: error,
                 icon: "error",
                 button: "Close",
+            });
+        }
+
+        function openUploadModal() {
+            Swal.fire({
+                title: 'Upload Guarantee Letter',
+                html: '<input type="file" id="guarantee-letter" accept=".docx, .pdf" onchange="uploadGuaranteeLetter()">',
+                showCancelButton: true,
+                confirmButtonText: 'Upload',
+                preConfirm: () => {
+                    // Handle file upload in uploadGuaranteeLetter() function
+                    return false; // Prevent closing the modal here
+                }
+            });
+        }
+
+        function uploadGuaranteeLetter() {
+            // Fetch CSRF token from meta tag
+            var csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+            // Get the file from input
+            var file = document.getElementById('guarantee-letter').files[0];
+
+            // Check if file is selected
+            if (!file) {
+                Swal.showValidationMessage('Please select a file');
+                return;
+            }
+
+            // Validate file size
+            if (file.size > 5 * 1024 * 1024) {
+                Swal.showValidationMessage('File size exceeds 5MB limit');
+                return;
+            }
+
+            // Create FormData object and append the file input
+            var formData = new FormData();
+            formData.append('_token', csrfToken); // Append CSRF token
+            formData.append('guarantee_letter', file);
+
+            // Perform AJAX upload
+            $.ajax({
+                url: "{{ route('submit_guarantee_letter') }}",
+                method: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    $('#guarantee_letter_id').val(response.id);
+                    Swal.fire('Success', 'Guarantee letter uploaded successfully', 'success');
+                },
+                error: function(xhr, status, error) {
+                    Swal.fire('Error', 'Failed to upload guarantee letter', 'error');
+                }
             });
         }
     </script>

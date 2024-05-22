@@ -29,11 +29,11 @@ class PaymentController extends Controller
                 'required',
                 'email',
                 // Check if email exists in registrations table
-                function ($attribute, $value, $fail) {
-                    if (Registration::where('email', $value)->exists()) {
-                        $fail('The email has already been registered.');
-                    }
-                },
+                // function ($attribute, $value, $fail) {
+                //     if (Registration::where('email', $value)->exists()) {
+                //         $fail('The email has already been registered.');
+                //     }
+                // },
             ],
             // Add more validation rules if needed
         ]);

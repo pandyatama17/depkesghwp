@@ -30,6 +30,7 @@ Route::group(['middleware' => ['web']], function () {
     Route::put('/registration/update-session-id', [PaymentController::class, 'updateSessionId'])->name('update_session_id');
     Route::get('/registration/validate-payment/{id}', [PaymentController::class, 'validatePayment'])->name('validate_payment');
     Route::get('/registration/details/{id}', [RegistrationController::class, 'show'])->name('registration_details');
+    Route::post('/registration/guarantee-letter/submit', [RegistrationController::class, 'uploadGuaranteeLetter'])->name('submit_guarantee_letter');
 
 });
 

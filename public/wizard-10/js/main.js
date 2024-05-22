@@ -1,4 +1,7 @@
 $(function(){
+    window.actionsBottom = '-260px';
+    window.stepsBottom = '-240px';
+
 	$("#wizard").steps({
         headerTag: "h4",
         bodyTag: "section",
@@ -92,16 +95,21 @@ $(function(){
             if (newIndex === 2) {
                 $('.steps').addClass('step-3');
                 var itemsCount = parseInt($('#items_count').val());
-                var bottomPosition = itemsCount * (-29); // Adjusted by 29px for better visibility
-            
-                // Check if "activity_6" is selected and adjust the bottom position accordingly
+                window.bottomPosition = itemsCount * (-29); // Adjusted by 29px for better visibility
+    
                 if ($('input[name="activity_6"]').is(':checked')) {
-                    bottomPosition -= 29; // Subtract 29px for the special case
+                    window.bottomPosition -= 29; // Subtract 29px for the special case
                 }
-            
-                $('.actions ul').css('bottom', '-260px').css('bottom', '+=' + bottomPosition + 'px');
-                $('.steps').css('bottom', '-240px').css('bottom', '+=' + bottomPosition + 'px');
-            
+
+                window.actionsBottom = '-260px'; // Set initial value
+                window.stepsBottom = '-240px'; // Set initial value
+
+                window.actionsBottom = parseInt(window.actionsBottom) + window.bottomPosition + 'px';
+                window.stepsBottom = parseInt(window.stepsBottom) + window.bottomPosition + 'px';
+
+                $('.actions ul').css('bottom', window.actionsBottom);
+                $('.steps').css('bottom', window.stepsBottom);
+    
                 // Adjust height based on items_count and the special case
                 var height = 706 + (itemsCount * 29); //28.57 rounded to 29
                 if ($('input[name="activity_6"]').is(':checked')) {
