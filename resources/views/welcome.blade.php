@@ -39,11 +39,52 @@
 
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@22.0.2/build/js/intlTelInput.min.js"></script>
     <script src="{{ asset('wizard-10/js/main.js') }}"></script>
-</head>
-<body>
+    <style>
+        #submitLoader {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.7);
+            /* Semi-transparent white background */
+            z-index: 9999;
+            justify-content: center;
+            /* Center items horizontally */
+            align-items: center;
+            /* Center items vertically */
+        }
+
+        .loader {
+            border: 8px solid #f3f3f3;
+            /* Light grey */
+            border-top: 8px solid #3498db;
+            /* Blue */
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            /* Spin animation */
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
 </head>
 
+
 <body>
+    <div id="submitLoader">
+        <div class="loader"></div>
+    </div>
     <div class="wrapper">
         <form method="POST" action="{{route('prepare_payment')}}" id="wizard" autocomplete="off">
 
@@ -382,7 +423,6 @@
 
             $(document).on("submit", "#wizard", function(e) {
                 e.preventDefault();
-                console.log('submit hold');
                 if ($('#total_currency').val() === "") {
                     Swal.fire({
                         icon: "error",
@@ -399,6 +439,7 @@
                     var paymentType = $("input[name='payment_method']:checked").val();
                     console.log(paymentType);
 
+                    showLoader();
                     $.ajax({
                             url: actionUrl, // Use the same URL for both payment methods
                             type: "POST",
@@ -406,6 +447,7 @@
                             data: formData,
                             async: true,
                             success: function(response) {
+                                hideLoader();
                                 // Handle response based on payment method
                                 if (response.success) {
                                     if (paymentType === "doku" || paymentType === "transfer") {
@@ -417,6 +459,11 @@
                                                 icon: "success",
                                                 title: "Success",
                                                 text: response.message
+                                            }).then((result) => {
+                                                // Check if there's a redirectUrl in the response
+                                                if (response.redirectUrl) {
+                                                    window.location.href = response.redirectUrl;
+                                                }
                                             });
                                         } else {
                                             // Registration failed
@@ -430,6 +477,7 @@
                                 }
                                 else
                                 {
+                                    hideLoader();
                                     Swal.fire({
                                         icon: "error",
                                         title: "Error",
@@ -439,6 +487,7 @@
                             },
                             error: function(xhr, status, error) {
                                 // AJAX request failed
+                                hideLoader();
                                 console.error(error);
                                 Swal.fire({
                                     icon: "error",
@@ -883,6 +932,14 @@
                     Swal.fire('Error', 'Failed to upload guarantee letter', 'error');
                 }
             });
+        }
+        function showLoader() {
+            document.getElementById('submitLoader').style.display = 'flex';
+        }
+        
+        // Function to hide loader
+        function hideLoader() {
+            document.getElementById('submitLoader').style.display = 'none';
         }
     </script>
     @if(Session::has('response'))

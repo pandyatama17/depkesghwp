@@ -125,7 +125,6 @@ $(function(){
         },        
         onFinishing: function (event, currentIndex) {
             event.preventDefault();
-                console.log('submit hold');
                 if ($('#total_currency').val() === "") {
                     Swal.fire({
                         icon: "error",
@@ -142,7 +141,7 @@ $(function(){
                         denyButtonText: `Cancel`
                     }).then((result) => {
                         // Serialize form data
-                        console.log('submit serialize');
+                        showLoader();
                         var formData = $("#wizard").serialize();
                         
                         // Extract the action URL from the form
@@ -161,6 +160,7 @@ $(function(){
                             async: true,
                             success: function(response) {
                                 // Handle response based on payment method
+                                hideLoader();
                                 if (response.success) {
                                     if (paymentType === "doku" || paymentType === "transfer") {
                                         payment(response);
@@ -171,6 +171,11 @@ $(function(){
                                                 icon: "success",
                                                 title: "Success",
                                                 text: response.message
+                                            }).then((result) => {
+                                                // Check if there's a redirectUrl in the response
+                                                if (response.redirectUrl) {
+                                                    window.location.href = response.redirectUrl;
+                                                }
                                             });
                                         } else {
                                             // Registration failed
@@ -184,6 +189,7 @@ $(function(){
                                 }
                                 else
                                 {
+                                    hideLoader();
                                     Swal.fire({
                                         icon: "error",
                                         title: "Error",
@@ -193,6 +199,7 @@ $(function(){
                             },
                             error: function(xhr, status, error) {
                                 // AJAX request failed
+                                hideLoader();
                                 console.error(error);
                                 Swal.fire({
                                     icon: "error",

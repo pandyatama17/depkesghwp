@@ -19,11 +19,13 @@ class AdminController extends Controller
     public function showRegistrations($type)
     {
         $registrations = [];
+        $excludedEmails = ['pandyatama17@gmail.com', 'ypinandito@gmail.com', 'pandyatamx@gmail.com', 'pandyatam@gmail.com', 'kelirstudio@gmail.com'];
 
         switch ($type) {
             case 'all':
 
-                $registrations = Registration::all();
+
+                $registrations = Registration::whereNotIn('email', $excludedEmails)->get();
 
                 $pendingPayments = Payment::whereNull('registration_id')->get();
                 $pendingRegistrations = $pendingPayments->map(function ($payment) {
@@ -40,7 +42,9 @@ class AdminController extends Controller
                     $data['updated_at'] = $payment->updated_at;
                     return (object) $data;
                 });
-
+                $pendingRegistrations = $pendingRegistrations->filter(function ($registration) use ($excludedEmails) {
+                    return !in_array($registration->email, $excludedEmails);
+                });
                 // Convert $registrations to a Collection
                 $registrations = collect($registrations);
 
@@ -62,16 +66,19 @@ class AdminController extends Controller
                     $data['updated_at'] = $payment->updated_at;
                     return (object) $data;
                 });
+                $registrations = $registrations->filter(function ($registration) use ($excludedEmails) {
+                    return !in_array($registration->email, $excludedEmails);
+                });
                 break;
 
             case 'success':
-                // Get all registrations
-                $registrations = Registration::all();
+
+                $registrations = Registration::whereNotIn('email', $excludedEmails)->get();
                 break;
             case 'doku':
             case 'letter':
             case 'transfer':
-                $registrations = Registration::where('payment_method', $type)->get();
+                $registrations = Registration::where('payment_method', $type)->whereNotIn('email', $excludedEmails)->get();
                 break;
 
             default:
@@ -208,7 +215,9 @@ class AdminController extends Controller
             $data['updated_at'] = $payment->updated_at;
             return (object) $data;
         });
-
+        $pendingRegistrations = $pendingRegistrations->filter(function ($registration) use ($excludedEmails) {
+            return !in_array($registration->email, $excludedEmails);
+        });
         // Convert $registrations and $pendingRegistrations to associative arrays
         $registrations = $registrations->toArray();
         $pendingRegistrations = $pendingRegistrations->toArray();

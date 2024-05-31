@@ -60,11 +60,15 @@ $(document).ready(function () {
                                     '<td>' + col.title + ':' + '</td> ' +
                                     '<td>' + fullDateTime + '</td>' +
                                     '</tr>';
-                            } else {
+                            } else if (col.index == 11 || col.title === 'Datetime Sort') {
+                                    return '';
+                            }
+                            else
+                            {
                                 return '<tr data-dt-row="' + rowIdx + '" data-dt-column="' + col.columnIndex + '">' +
-                                    '<td>' + col.title + ':' + '</td> ' +
-                                    '<td>' + col.data + '</td>' +
-                                    '</tr>';
+                                        '<td>' + col.title + ':' + '</td> ' +
+                                        '<td>' + col.data + '</td>' +
+                                        '</tr>';
                             }
                         }).join('');
     
@@ -75,21 +79,53 @@ $(document).ready(function () {
         };
     
         if (table.attr('id') === 'registrationListTable') {
-            options["columnDefs"] = [{
-                "targets": 9, 
-                "type": "date",
-                "render": function(data, type, row, meta) {
-                    if (type === 'display' || type === 'filter') {
-                        return $(meta.settings.aoData[meta.row].anCells[meta.col]).data('full-datetime').split(' ')[0];
-                    }
-                    return data;
+            options["columnDefs"] = [
+                {
+                    "targets": [11], // Index of the hidden column
+                    "visible": false, // Hide the column
+                    "searchable": false // Exclude from searching
                 },
-            }];
-            options["order"] = [[9, 'desc']];
+                {
+                    "targets": 9, 
+                    "type": "date",
+                    "render": function(data, type, row, meta) {
+                        if (type === 'display' || type === 'filter') {
+                            return $(meta.settings.aoData[meta.row].anCells[meta.col]).data('full-datetime').split(' ')[0];
+                        }
+                        return data;
+                    },
+                },
+                {
+                    "targets": [0, 2, 3, 4, 5, 6, 7, 8, 10], // List all non-sortable columns
+                    "orderable": false // Disable sorting for these columns
+                },
+                {
+                    "targets": [1, 9, 11], // List all sortable columns
+                    "orderable": true // Enable sorting for these columns
+                },
+            ];
+            options["order"] = [[11, 'desc']];
         }
     
-        table.DataTable(options);
-    });    
+        var dataTable = table.DataTable(options);
+    
+        var sortAscending = true;
+        // Event handler for column header click
+        table.find('thead th').click(function () {
+            var columnIndex = $(this).index(); // Index of the clicked column
+            if (columnIndex === 9) {
+                // Toggle sorting order
+                sortAscending = !sortAscending;
+
+                // Determine sorting direction
+                var sortOrder = sortAscending ? 'asc' : 'desc';
+
+                // Sort by column 11 with the determined order
+                dataTable.order([11, sortOrder]).draw();
+            }
+        });
+    });
+    
     
     $('.select2').select2();
     // Handle change event on select dropdown
@@ -304,6 +340,36 @@ $(document).ready(function () {
             }
         });
     });
-    
+    $("#hiddenDashboardToggle").click(function(e) {
+        e.preventDefault();
+        // Show Swal prompt for password input
+        Swal.fire({
+            title: 'Enter Password',
+            input: 'password',
+            inputAttributes: {
+                autocapitalize: 'off'
+            },
+            showCancelButton: true,
+            confirmButtonText: 'Submit',
+            showLoaderOnConfirm: true,
+            preConfirm: (password) => {
+                // Compare the entered password with the hardcoded encrypted password
+                var hashedPass = CryptoJS.MD5(password).toString();
+                console.log(hashedPass);
+                if (hashedPass == 'b1f876ce5d3daeaea5a7274355b7a7de') {
+                    // If passwords match, execute the fadeOut function
+                    $('.lock-overlay').fadeOut(500);
+                } else {
+                    // If passwords don't match, show an error message
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid Password',
+                        text: 'Please enter the correct password.'
+                    });
+                }
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+        });
+    });
 });
 

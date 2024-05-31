@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use Carbon\Carbon;
 use App\Models\Registration;
 use App\Models\RegistrationDetail;
+use App\Models\GuaranteeLetter;
 use Illuminate\Support\Facades\DB;
 use App\Mail\RegistrationMail;
 use Illuminate\Support\Facades\Mail;
@@ -163,8 +164,9 @@ class RegistrationController extends Controller
                 //         ->subject('Your Registration Details');
 
                 //     if ($registration->payment_method == 'letter') {
-                //         $guaranteeLetterPath = public_path('Guarantee Letter for payment_CB GHWP__bilingual.docx');
-                //         $m->attach($guaranteeLetterPath);
+                //         $guaranteeLetterUrl = 'https://reggakeslab.com/Guarantee%20Letter%20for%20payment_CB%20GHWP__bilingual.docx';
+                //         $fileContents = Http::get($guaranteeLetterUrl)->body();
+                //         $m->attachData($fileContents, 'Guarantee_Letter.docx');
                 //     }
                 // });
 
@@ -181,6 +183,7 @@ class RegistrationController extends Controller
                 'success' => true,
                 'message' => 'Registration successful. Your invoice number is ' . $registration->invoice_id . '. Please check your email for confirmation.',
                 'registrationId' => $registrationId,
+                'redirectUrl' => route('registration_details',Crypt::encrypt($registrationId)),
                 'error' => null, // Set to null for success
             ]);
     

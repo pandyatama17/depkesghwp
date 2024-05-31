@@ -94,7 +94,12 @@ class PaymentController extends Controller
                     // Request failed, return error response
                     return response()->json([
                         'success' => false,
-                        'error' => 'Failed to create payment session',
+                        'message' => 'Failed to create payment session',
+                        'error' => [
+                            'status_code' => $response->status(),
+                            'body' => $response->body(),
+                            'message' => $response->json()['error'] ?? 'Unknown error',
+                        ],
                         'headers' => $headers,
                         'body' => $body,
                         'signature' => $signature,
@@ -150,7 +155,7 @@ class PaymentController extends Controller
                 'activity_1' => ['Day 1 Session-Inc. Opening Ceremony + TC Open Meeting - Local Participant', 2000000],
                 'activity_2' => ['Day 1 Half Day Session - Local Participant', 1000000],
                 'activity_3' => ['Day 2 Session - Local Participant', 2000000],
-                'activity_4' => ['2 Days Package -2 Days Package Half day session at 1st day and full day session at 2nd day not including Opening Ceremony and TC Open Meeting - Local Participant', 3750000],
+                'activity_4' => ['2 Days Package - Half day at 1st day and full day at 2nd day not including Opening Ceremony and TC Open Meeting - Local Participant', 3000000],
                 'activity_5' => ['Halal Awareness by IHATEC + Attendance certificate - Local Participant', 2600000],
                 'activity_6' => ['2 days GDPMD -CDAKB- for Technical Responsible Person + Certificate by Ministry of Health Republic of Indonesia', 4000000],
                 'activity_7' => ['Gala Dinner - Local Participant', 750000],
@@ -159,7 +164,7 @@ class PaymentController extends Controller
                 'activity_1' => ['Day 1 Session -Inc. Opening Ceremony + TC Open Meeting - Foreign Participant', 250 * 16300], // Multiply by 16300
                 'activity_2' => ['Day 1 Half Day Session - Foreign Participant', 125 * 16300], // Multiply by 16300
                 'activity_3' => ['Day 2 Session - Foreign Participant', 250 * 16300], // Multiply by 16300
-                'activity_4' => ['2 Days Package -2 Days Package Half day session at 1st day and full day session at 2nd day not including Opening Ceremony and TC Open Meeting - Foreign Participant', 500 * 16300], // Multiply by 16300
+                'activity_4' => ['2 Days Package - Half day at 1st day and full day at 2nd day not including Opening Ceremony and TC Open Meeting - Foreign Participant', 375 * 16300], // Multiply by 16300
                 'activity_5' => ['Halal Awareness by IHATEC + Attendance certificate - Foreign Participant', 250 * 16300], // Multiply by 16300
                 'activity_7' => ['Gala Dinner - Foreign Participant', 100 * 16300], // Multiply by 16300
             ],
@@ -201,7 +206,7 @@ class PaymentController extends Controller
 
         $body = [
             "customer" => [
-                "address" => preg_replace('/[^A-Za-z0-9\s,.-]/', '', str_replace(["\r", "\n"], ' ', $r['address'])),
+                "address" =>preg_replace('/[^A-Za-z0-9\s,.-]/', '', str_replace(["\r", "\n"], ' ', $r['address'])),
                 "country" => "ID",
                 "email" => $r['email'],
                 "name" => $r['name'],
